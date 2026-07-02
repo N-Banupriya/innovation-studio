@@ -190,6 +190,12 @@
   .dept-filter{display:flex;align-items:center;gap:9px}
   .dept-filter label{font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap}
   .dept-filter select{padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13.5px;background:#fff;font-weight:600;color:var(--blue-700)}
+  .hack-searchbar{display:flex;align-items:center;gap:9px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;margin:14px 0 4px;box-shadow:var(--shadow-sm)}
+  .hack-searchbar:focus-within{border-color:var(--blue-600)}
+  .hack-searchbar .hs-ic{font-size:15px;opacity:.7}
+  .hack-searchbar input{flex:1;border:none;outline:none;font-size:14.5px;font-weight:500;color:var(--ink);background:transparent}
+  .hack-searchbar .hs-clear{border:none;background:#eef1f6;color:#6b7280;font-weight:800;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:13px}
+  .hack-searchbar .hs-clear:hover{background:#e2e6ee}
   .live-panel{background:linear-gradient(135deg,#f4f8ff,#eef3ff);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin:14px 0 20px;box-shadow:var(--shadow-sm)}
   .live-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
   .live-panel-head b{font-size:15px;color:var(--blue-800)}
@@ -714,7 +720,7 @@ function seedContent(){
    ========================================================= */
 const State = { user:null, fb:null, users:[], content:null, regs:[], teamReqs:[], admins:[], liveHacks:[], view:'auth', currentHack:null, currentAct:null, media:{}, proofs:{},
   isAdmin:false, adminTab:'tracker', filterHack:'all', filterType:'all', filterCoe:'all', filterDept:'mine', search:'',
-  psCat:'industry', psSector:null, psSearch:'', psFilter:'all', actYear:'all', liveSource:'all' };
+  psCat:'industry', psSector:null, psSearch:'', psFilter:'all', actYear:'all', liveSource:'all', hackSearch:'' };
 
 /* =========================================================
    LIVE HACKATHON SOURCES (aggregators we surface / auto-sync)
@@ -731,17 +737,17 @@ const State = { user:null, fb:null, users:[], content:null, regs:[], teamReqs:[]
 const LIVE_SOURCES=[
   {key:'Unstop',     label:'Unstop',              emoji:'🚀', color:'#2536d6', url:'https://unstop.com/hackathons',            auto:true },
   {key:'Devpost',    label:'Devpost',             emoji:'💻', color:'#003e54', url:'https://devpost.com/hackathons',            auto:true },
-  {key:'Hack2skills',label:'Hack2skills',         emoji:'🛠️', color:'#f5820b', url:'https://www.hack2skills.com/',              auto:false},
-  {key:'Devfolio',   label:'Devfolio',            emoji:'🧩', color:'#3770ff', url:'https://devfolio.co/hackathons',            auto:false},
-  {key:'DoraHacks',  label:'DoraHacks',           emoji:'🐲', color:'#6a2bff', url:'https://dorahacks.io/hackathon',            auto:false},
-  {key:'Gitcoin',    label:'Gitcoin',             emoji:'🌱', color:'#0fce7c', url:'https://www.gitcoin.co/',                   auto:false},
-  {key:'Taikai',     label:'TAIKAI',              emoji:'🏁', color:'#5b3df5', url:'https://taikai.network/en/hackathons',      auto:false},
-  {key:'Dework',     label:'Dework',              emoji:'🧱', color:'#8b5cf6', url:'https://app.dework.xyz/',                   auto:false},
-  {key:'Luma',       label:'Luma',                emoji:'📅', color:'#e0574c', url:'https://lu.ma/discover?q=hackathon',        auto:false},
-  {key:'ETHGlobal',  label:'ETHGlobal',           emoji:'⟠', color:'#111827', url:'https://ethglobal.com/events',              auto:false},
-  {key:'MLH',        label:'Major League Hacking', emoji:'🏆', color:'#e63946', url:'https://mlh.io/seasons/2026/events',       auto:false},
-  {key:'AngelList',  label:'AngelList Talent',    emoji:'👼', color:'#1b1f23', url:'https://wellfound.com/',                    auto:false},
-  {key:'Internshala',label:'Internshala',         emoji:'🎓', color:'#00b5c3', url:'https://internshala.com/hackathons/',       auto:false}
+  {key:'Hack2skills',label:'Hack2skills',         emoji:'🛠️', color:'#f5820b', url:'https://www.hack2skills.com/',              auto:true },
+  {key:'Devfolio',   label:'Devfolio',            emoji:'🧩', color:'#3770ff', url:'https://devfolio.co/hackathons',            auto:true },
+  {key:'DoraHacks',  label:'DoraHacks',           emoji:'🐲', color:'#6a2bff', url:'https://dorahacks.io/hackathon',            auto:true },
+  {key:'Gitcoin',    label:'Gitcoin',             emoji:'🌱', color:'#0fce7c', url:'https://www.gitcoin.co/',                   auto:true },
+  {key:'Taikai',     label:'TAIKAI',              emoji:'🏁', color:'#5b3df5', url:'https://taikai.network/en/hackathons',      auto:true },
+  {key:'Dework',     label:'Dework',              emoji:'🧱', color:'#8b5cf6', url:'https://app.dework.xyz/',                   auto:true },
+  {key:'Luma',       label:'Luma',                emoji:'📅', color:'#e0574c', url:'https://lu.ma/discover?q=hackathon',        auto:true },
+  {key:'ETHGlobal',  label:'ETHGlobal',           emoji:'⟠', color:'#111827', url:'https://ethglobal.com/events',              auto:true },
+  {key:'MLH',        label:'Major League Hacking', emoji:'🏆', color:'#e63946', url:'https://mlh.io/seasons/2026/events',       auto:true },
+  {key:'AngelList',  label:'AngelList Talent',    emoji:'👼', color:'#1b1f23', url:'https://wellfound.com/',                    auto:true },
+  {key:'Internshala',label:'Internshala',         emoji:'🎓', color:'#00b5c3', url:'https://internshala.com/hackathons/',       auto:true }
 ];
 /* match a stored record's free-text `source` to a known platform (fuzzy) */
 function liveSourceInfo(src){
@@ -1276,20 +1282,24 @@ function viewHackathons(){
   const myGroup=deptGroup(State.user.dept);
   const sel=State.filterDept||'all';
   const srcSel=State.liveSource||'all';
+  const q=(State.hackSearch||'').trim().toLowerCase();
   const activeGroup = sel==='all'?null : sel;
   const all=allHacks();
   let list = activeGroup ? all.filter(h=>audMatch(h,activeGroup)) : all;
   if(srcSel!=='all'){ list=list.filter(h=>h.isLive && liveSourceInfo(h.source) && liveSourceInfo(h.source).key===srcSel); }
+  if(q){ list=list.filter(h=>{
+    const hay=[h.title,h.org,h.source,h.about,h.level,h.prize,(h.themes||[]).join(' ')].join(' ').toLowerCase();
+    return hay.includes(q);
+  }); }
   const liveCount=(State.liveHacks||[]).length;
-  const chips=LIVE_SOURCES.map(o=>`<a class="src-chip" href="${o.url}" target="_blank" rel="noopener" style="--sc:${o.color}">
+  const chips=LIVE_SOURCES.map(o=>`<a class="src-chip" href="${o.url}" target="_blank" rel="noopener" style="--sc:${o.color}" title="Open ${esc(o.label)}">
       <span class="src-ic">${o.emoji}</span><span class="src-nm">${esc(o.label)}</span>
-      <span class="src-tag ${o.auto?'on':'off'}">${o.auto?'Auto-synced':'Browse'}</span></a>`).join('');
+      <span class="src-tag on">Auto</span></a>`).join('');
   const platformsPanel=`<div class="live-panel">
       <div class="live-panel-head">
-        <div><b>🌐 Live hackathon platforms</b><span class="live-sub">Feed auto-syncs every ~6 hrs · ${liveCount} live now</span></div>
+        <div><b>🌐 Auto-syncing platforms</b><span class="live-sub">Refreshes every ~6 hrs · ${liveCount} live now</span></div>
       </div>
       <div class="src-chips">${chips}</div>
-      <div class="live-note">Tiles marked <b>Auto-synced</b> flow into the list below automatically. The others open the platform directly — ask CFi to enable auto-sync for them too.</div>
     </div>`;
   const cards=list.map(h=>{
     const c=countFor(h.id),mine=myReg(h.id);
@@ -1303,7 +1313,7 @@ function viewHackathons(){
       <div class="foot">
         <span class="reg-count"><b>${c}</b> ${c===1?'student':'students'}${mine?' · <span style="color:var(--good);font-weight:700">you\'re in</span>':''}</span>
         <span class="btn btn-gold btn-sm">View →</span>
-      </div></div>`;}).join('') || `<div class="empty">No hackathons mapped to this department right now.</div>`;
+      </div></div>`;}).join('') || `<div class="empty">${q||srcSel!=='all'?'No hackathons match your search / filter. Try clearing the search box or choosing “All platforms”.':'No hackathons mapped to this department right now.'}</div>`;
   const gName={cse:'CSE-aligned',ece:'ECE',eee:'EEE',mech:'Mechanical'};
   const opt=(v,t)=>`<option value="${v}" ${sel===v?'selected':''}>${t}</option>`;
   return `<button class="back" data-nav="home">← Back to home</button>
@@ -1319,6 +1329,11 @@ function viewHackathons(){
           <option value="all" ${srcSel==='all'?'selected':''}>All platforms</option>
           ${LIVE_SOURCES.map(o=>`<option value="${o.key}" ${srcSel===o.key?'selected':''}>${esc(o.label)}</option>`).join('')}
         </select></div>
+    </div>
+    <div class="hack-searchbar">
+      <span class="hs-ic">🔍</span>
+      <input id="hackSearch" type="text" placeholder="Search hackathons — name, platform, theme, prize…" value="${esc(State.hackSearch||'')}" autocomplete="off">
+      ${q?`<button class="hs-clear" data-hclear>✕</button>`:''}
     </div>
     ${platformsPanel}
     <div class="grid">${cards}</div>`;
@@ -1347,6 +1362,14 @@ function bindHackathons(){
   });
   const fd=app.querySelector('[data-fdept]'); if(fd) fd.onchange=()=>{State.filterDept=fd.value;render();};
   const fs=app.querySelector('[data-fsrc]'); if(fs) fs.onchange=()=>{State.liveSource=fs.value;render();};
+  const hsInput=app.querySelector('#hackSearch');
+  if(hsInput){
+    hsInput.oninput=()=>{ State.hackSearch=hsInput.value; render();
+      const again=app.querySelector('#hackSearch');
+      if(again){ again.focus(); const v=again.value; again.value=''; again.value=v; } };
+    if(State.hackSearch){ hsInput.focus(); const v=hsInput.value; hsInput.value=''; hsInput.value=v; }
+  }
+  const hc=app.querySelector('[data-hclear]'); if(hc) hc.onclick=()=>{State.hackSearch='';render();};
 }
 
 /* =========================================================
@@ -1546,10 +1569,13 @@ function bindProducts(){
 function viewStartups(){
   return `<button class="back" data-nav="home">← Back to home</button>
     <div class="sec-head"><div><div class="eyebrow">SECE</div><h2>Startup Hub</h2></div></div>
-    <iframe src="SECE_Startup_Hub_Complete.html" title="Startup Hub" style="width:100%;height:82vh;border:1px solid #dce3f0;border-radius:14px;background:#fff"></iframe>`;
+    <iframe id="shubFrame" title="Startup Hub" style="width:100%;height:82vh;border:1px solid #dce3f0;border-radius:14px;background:#fff"></iframe>`;
 }
 function bindStartups(){
-  app.querySelectorAll('[data-stab]').forEach(b=>b.onclick=()=>{State.startupTab=b.dataset.stab;render();});
+  const f=app.querySelector('#shubFrame'); const src=document.getElementById('shub-doc');
+  if(f && src && !f.getAttribute('srcdoc')){
+    f.setAttribute('srcdoc', src.textContent.replace(/<\\\/script>/g,'<\/script>'));
+  }
 }
 function viewDownloads(){
   if(State.dlFolder==='dt'){
@@ -2142,4 +2168,1478 @@ function bindChrome(){
 }
 
 boot();
+</script>
+
+<script type="text/html" id="shub-doc">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Eshwar Startup Hub - Complete Government Schemes Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0b2a6b;        /* Navy Blue */
+            --secondary: #ffc01e;      /* Gold */
+            --dark: #123c8c;           /* Dark Navy */
+            --light: #F8F9FA;          /* Light Gray */
+            --text: #1a1a1a;           /* Dark Text */
+            --border: #E0E0E0;         /* Border Gray */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .main-container {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header with SECE Branding */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border-top: 5px solid var(--secondary);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            color: var(--secondary);
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .college-name {
+            font-size: 1.1em;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.05em;
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+
+        .header .tagline {
+            color: var(--secondary);
+            font-style: italic;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        /* Stats Row */
+        .stats-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+            text-align: center;
+        }
+
+        .stat-item .number {
+            font-size: 2em;
+            font-weight: 800;
+            color: var(--secondary);
+            display: block;
+        }
+
+        .stat-item .label {
+            font-size: 0.9em;
+            color: #e0e0e0;
+            margin-top: 5px;
+        }
+
+        /* Main Navigation */
+        .main-nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 3px solid var(--primary);
+            color: var(--primary);
+            padding: 16px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 31, 63, 0.4);
+        }
+
+        .nav-btn.active {
+            background: var(--secondary);
+            color: var(--primary);
+            border-color: var(--secondary);
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            animation: slideIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section h2 {
+            color: var(--primary);
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            border-bottom: 4px solid var(--secondary);
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: var(--primary);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        /* Upload Section */
+        .upload-box {
+            background: linear-gradient(135deg, var(--light) 0%, #f0f4f8 100%);
+            border: 3px dashed var(--primary);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .upload-box.dragover {
+            background: #e8f0ff;
+            border-color: var(--secondary);
+            box-shadow: 0 0 20px rgba(255, 184, 28, 0.2);
+        }
+
+        .upload-box h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .file-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 14px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            border: none;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .file-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 31, 63, 0.3);
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 31, 63, 0.1);
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            padding: 16px 40px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 31, 63, 0.4);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 16px 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            border-left-color: var(--secondary);
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .card-badge {
+            display: inline-block;
+            background: var(--light);
+            color: var(--primary);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border: 2px solid var(--primary);
+        }
+
+        .card-badge.match {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-color: #2e7d32;
+        }
+
+        .card-badge.gold {
+            background: #fff8e1;
+            color: var(--primary);
+            border-color: var(--secondary);
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95em;
+            margin-bottom: 12px;
+        }
+
+        .funding-amount {
+            background: linear-gradient(135deg, #f5f7fa 0%, #f0f4f8 100%);
+            padding: 14px;
+            border-radius: 8px;
+            color: var(--primary);
+            font-weight: 700;
+            margin: 12px 0;
+            font-size: 1.05em;
+            border-left: 4px solid var(--secondary);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            background: var(--border);
+            height: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        /* Journey Timeline */
+        .journey-timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .journey-stage {
+            margin-bottom: 30px;
+            padding-left: 50px;
+            position: relative;
+        }
+
+        .journey-stage::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            background: var(--secondary);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary);
+        }
+
+        .journey-stage::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 30px;
+            width: 2px;
+            height: 50px;
+            background: var(--border);
+        }
+
+        .journey-stage:last-child::after {
+            display: none;
+        }
+
+        .journey-stage h4 {
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .journey-stage p {
+            color: #666;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        /* Hub Grid */
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .hub-card {
+            background: linear-gradient(135deg, var(--light) 0%, #f0f4f8 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .hub-card:hover {
+            transform: translateY(-5px);
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8f0ff 100%);
+            border-left-color: var(--secondary);
+        }
+
+        .hub-card h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .hub-card p {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        /* Analysis Section */
+        .analysis-section {
+            background: linear-gradient(135deg, var(--light) 0%, #f0f4f8 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .analysis-section h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .analysis-text {
+            color: #666;
+            line-height: 1.8;
+            font-size: 0.95em;
+        }
+
+        /* Messages */
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2e7d32;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+            font-weight: 600;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #fff8e1 0%, #fffde7 100%);
+            border-left: 4px solid var(--secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tip-box strong {
+            color: var(--primary);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid var(--light);
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            margin-top: 30px;
+            border-radius: 10px;
+            border-top: 4px solid var(--secondary);
+        }
+
+        footer p {
+            margin: 8px 0;
+        }
+
+        footer .college-credit {
+            color: var(--secondary);
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .main-nav {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-box {
+                padding: 20px;
+            }
+
+            .stats-header {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Search Box */
+        .search-box {
+            margin-bottom: 25px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(255, 184, 28, 0.1);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-section select {
+            padding: 12px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            background: white;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .filter-section select:hover, 
+        .filter-section select:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(255, 184, 28, 0.1);
+            outline: none;
+        }
+
+        /* Checklist */
+        .checklist-item {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .checklist-item:hover {
+            background: var(--light);
+            transform: translateX(5px);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: var(--secondary);
+        }
+
+        .checklist-item.checked {
+            border-left-color: var(--secondary);
+            background: #f0f8ff;
+        }
+
+        /* Category Badge */
+        .category-tag {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+    .scheme-modal{display:none;position:fixed;inset:0;background:rgba(11,42,107,.55);z-index:999;align-items:center;justify-content:center;padding:18px;}
+    .scheme-modal-box{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:26px;position:relative;max-height:88vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+    .scheme-modal-x{position:absolute;top:12px;right:14px;border:none;background:#eef2fb;width:34px;height:34px;border-radius:50%;font-size:20px;cursor:pointer;color:#0b2a6b;}
+    .scheme-detail-tbl{width:100%;border-collapse:collapse;margin-top:6px;}
+    .scheme-detail-tbl td{padding:9px 6px;border-bottom:1px solid #eef0f6;font-size:.92em;vertical-align:top;}
+    .scheme-detail-tbl td:first-child{color:#7a869c;font-weight:600;width:42%;}
+    .scheme-apply{display:inline-block;margin-top:16px;background:#ffc01e;color:#5a3d00;font-weight:800;padding:11px 18px;border-radius:10px;text-decoration:none;}
+    </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"><\/script>
+<script>try{if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}}catch(e){}<\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"><\/script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header with SECE Branding -->
+        <div class="header">
+            <div class="college-name">🎓 Sri Eshwar Business Incubation Forum</div>
+            <h1>🚀 STARTUP HUB</h1>
+            <p>Government Schemes & Startup Ecosystem Platform</p>
+            <p class="tagline">Your Complete Guide to Funding, Mentoring & Building Startups</p>
+            
+            <div class="stats-header">
+                <div class="stat-item">
+                    <span class="number">65+</span>
+                    <span class="label">Government Schemes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="number">35+</span>
+                    <span class="label">Ministries & Departments</span>
+                </div>
+                <div class="stat-item">
+                    <span class="number" style="color:#ffc01e !important;-webkit-text-fill-color:#ffc01e">₹1L+ Cr</span>
+                    <span class="label">Total Funding</span>
+                </div>
+                <div class="stat-item">
+                    <span class="number">5</span>
+                    <span class="label">Support Types</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="main-nav">
+            <button class="nav-btn active" onclick="switchSection('analyze')">📊 Analyze My Idea</button>
+            <button class="nav-btn" onclick="switchSection('schemes')">💰 All 65+ Schemes</button>
+            <button class="nav-btn" onclick="switchSection('journey')">🗺️ Startup Journey</button>
+            <button class="nav-btn" onclick="switchSection('ecosystem')">🚀 Our Startup Portfolio</button>
+            <button class="nav-btn" onclick="switchSection('resources')">📚 Resources</button>
+        </div>
+
+        <!-- 1. ANALYZE SECTION -->
+        <div id="analyze" class="section active">
+            <h2>📊 Tell Us About Your Startup</h2>
+            <p style="color: #666; margin-bottom: 20px; font-size: 1.05em;">Describe your project and we'll recommend the PERFECT schemes for you!</p>
+
+            <div class="upload-box" id="uploadBox">
+                <h3>📁 Upload Your Idea Document or Type Below</h3>
+                <p style="color: #666; margin-bottom: 15px;">Drag & drop a file or click to select</p>
+                
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.pptx" onchange="handleFile(event)" style="display:none;">
+                <button class="file-btn" onclick="document.getElementById('fileInput').click()">📂 Choose File</button>
+                
+                <p style="color: #999; margin: 20px 0; font-weight: 600;">OR</p>
+                
+                <textarea id="projectDesc" class="textarea" placeholder="Describe your startup idea:
+• What problem are you solving?
+• Who are your target customers?
+• What's your product/service?
+• What's your market size?
+• When do you need funding?
+• Your sector/industry?"></textarea>
+                
+                <button class="analyze-btn" id="analyzeBtn" onclick="analyzeIdea()">🔍 ANALYZE & GET SCHEME RECOMMENDATIONS</button>
+            </div>
+
+            <!-- Results -->
+            <div id="analysisResults" style="display: none; margin-top: 30px;">
+                <div class="success-message">
+                    ✅ Analysis Complete! Here are your personalized scheme recommendations...
+                </div>
+
+                <div class="analysis-section">
+                    <h4>🎯 Your Project Summary</h4>
+                    <p id="projectSummary" class="analysis-text"></p>
+                </div>
+
+                <div class="analysis-section">
+                    <h4>📈 Recommended Funding Stage</h4>
+                    <p id="fundingStage" class="analysis-text"></p>
+                </div>
+
+                <h3>💡 TOP SCHEMES MATCHED FOR YOU</h3>
+                <div id="recommendedSchemes" class="cards-grid"></div>
+
+                <div class="analysis-section">
+                    <h4>📋 Your Next Action Steps</h4>
+                    <ol style="color: #666; margin-left: 25px; line-height: 2; font-size: 0.95em;">
+                        <li><strong>Register</strong> with DPIIT if not already done</li>
+                        <li><strong>Apply</strong> to top 3 schemes in parallel</li>
+                        <li><strong>Prepare</strong> detailed project documentation</li>
+                        <li><strong>Connect</strong> with SECE's incubation center</li>
+                        <li><strong>Start</strong> pitching to mentors & investors</li>
+                    </ol>
+                </div>
+
+                <button class="analyze-btn" onclick="location.reload()" style="margin-top: 20px; background: var(--secondary); color: var(--primary);">↻ Analyze Another Idea</button>
+            </div>
+        </div>
+
+        <!-- 2. SCHEMES SECTION -->
+        <div id="schemes" class="section">
+            <h2>💰 All 65+ Government Schemes Database</h2>
+            
+            <div class="tip-box">
+                <strong>💡 Smart Tip:</strong> Filter by your startup stage and type of support to find relevant schemes quickly!
+            </div>
+
+            <div class="filter-section">
+                <div>
+                    <label style="color: var(--primary); font-weight: 600; display: block; margin-bottom: 8px;">Filter by Stage:</label>
+                    <select id="stageFilter" onchange="filterSchemes()">
+                        <option value="">All Stages</option>
+                        <option value="idea">💡 Ideation</option>
+                        <option value="prototype">🔧 Prototype</option>
+                        <option value="seed">🌱 Seed Stage</option>
+                        <option value="growth">🚀 Growth Stage</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="color: var(--primary); font-weight: 600; display: block; margin-bottom: 8px;">Filter by Support:</label>
+                    <select id="supportFilter" onchange="filterSchemes()">
+                        <option value="">All Types</option>
+                        <option value="grant">💳 Grant</option>
+                        <option value="equity">📈 Equity</option>
+                        <option value="loan">🏦 Loan/Credit</option>
+                        <option value="incubation">🏢 Incubation</option>
+                        <option value="market">🌍 Market Access</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="color: var(--primary); font-weight: 600; display: block; margin-bottom: 8px;">Filter by Sector:</label>
+                    <select id="sectorFilter" onchange="filterSchemes()">
+                        <option value="">All Sectors</option>
+                        <option value="general">🏢 General Tech</option>
+                        <option value="biotech">🧬 Biotech/Medtech</option>
+                        <option value="agri">🌾 Agriculture</option>
+                        <option value="defence">🛡️ Defence</option>
+                        <option value="space">🚀 Space</option>
+                        <option value="semiconductor">⚡ Semiconductor</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="schemeSearch" placeholder="🔍 Search schemes by name..." onkeyup="filterSchemes()">
+            </div>
+
+            <div id="schemesList" class="cards-grid"></div>
+        </div>
+
+        <!-- 3. JOURNEY SECTION -->
+        <div id="journey" class="section">
+            <h2>🗺️ Your Startup Journey Map</h2>
+            <p style="color: #666; margin-bottom: 30px; font-size: 1em;">This is the typical path from idea to a successful startup!</p>
+
+            <div class="journey-timeline">
+                <div class="journey-stage">
+                    <h4>Stage 1: Ideation (0-3 months) 💡</h4>
+                    <p><strong>What:</strong> Validate problem & solution, build MVP</p>
+                    <p><strong>Funding:</strong> Personal savings, Friends & Family</p>
+                    <p><strong>Schemes:</strong> NIDHI-EIR, PRAYAS 2.0, Atal Tinkering Labs, BIG (Biotech)</p>
+                    <p><strong>Action:</strong> Get customer feedback, Build prototype</p>
+                    <p style="color:#0b2a6b"><strong>🎓 At Sri Eshwar:</strong> Design Thinking Bootcamp, Empathy Talk, Field Visit, Idea Clinic & Idea Showcase</p>
+                </div>
+
+                <div class="journey-stage">
+                    <h4>Stage 2: Prototype (3-6 months) 🔧</h4>
+                    <p><strong>What:</strong> Build working prototype, first customers</p>
+                    <p><strong>Funding:</strong> Grants (₹5L-₹20L)</p>
+                    <p><strong>Schemes:</strong> SISFS, NIDHI-PRAYAS, BIG, iDEX, IN-SPACe Seed Fund</p>
+                    <p><strong>Action:</strong> Register with DPIIT, Apply for grants, Join incubator</p>
+                    <p style="color:#0b2a6b"><strong>🎓 At Sri Eshwar:</strong> Build Clinic, Prototype Building, Interim Reviews & Prototype Showcase</p>
+                </div>
+
+                <div class="journey-stage">
+                    <h4>Stage 3: Seed Stage (6-12 months) 🌱</h4>
+                    <p><strong>What:</strong> Product market fit, team building, early revenue</p>
+                    <p><strong>Funding:</strong> Grants + Early VC (₹20L-₹1Cr)</p>
+                    <p><strong>Schemes:</strong> NIDHI-SSP, FFS, AgriSURE, LEAP Fund, SAMRIDH</p>
+                    <p><strong>Action:</strong> Pitch to investors, Join accelerators, Scale team</p>
+                    <p style="color:#0b2a6b"><strong>🎓 At Sri Eshwar:</strong> Startup Launchpad, Market Survey, MVP Development & Startup Spark</p>
+                </div>
+
+                <div class="journey-stage">
+                    <h4>Stage 4: Growth (1-2 years) 🚀</h4>
+                    <p><strong>What:</strong> Revenue growth, market expansion, profitability</p>
+                    <p><strong>Funding:</strong> Series A VC (₹1Cr-₹10Cr)</p>
+                    <p><strong>Schemes:</strong> Startup India FoF 2.0, AgriSURE, Private VC</p>
+                    <p><strong>Action:</strong> Scale operations, Enter new markets, Hire talent</p>
+                    <p style="color:#0b2a6b"><strong>🎓 At Sri Eshwar:</strong> MVP Launchpad, Fit2Market & Startup ID Camp</p>
+                </div>
+
+                <div class="journey-stage">
+                    <h4>Stage 5: Scaling (2-5 years) 📈</h4>
+                    <p><strong>What:</strong> Multiple markets, larger teams, expansion</p>
+                    <p><strong>Funding:</strong> Series B/C VC (₹10Cr+)</p>
+                    <p><strong>Schemes:</strong> Private investors, Strategic partnerships</p>
+                    <p><strong>Action:</strong> IPO, Acquisition, or Expansion</p>
+                    <p style="color:#0b2a6b"><strong>🎓 At Sri Eshwar:</strong> Udyam / DPIIT registration support & Business Incubation Forum mentoring</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. SRI ESHWAR STARTUPS -->
+        <div id="ecosystem" class="section">
+            <h2>🚀 Our Startup Portfolio</h2>
+            <p style="color:#555;margin-bottom:22px;">Ventures founded and incubated by Sri Eshwar students. Tap a category to see the full list.</p>
+            <div class="cards-grid">
+                <div class="card" id="cnt-ud" style="cursor:pointer;text-align:center" onclick="toggleStartupList('ud')">
+                    <div style="font-size:2.4em;font-weight:800;color:var(--primary);line-height:1">46</div>
+                    <h3 style="margin:6px 0 2px">Udyam &amp; Pipeline</h3>
+                    <p style="color:var(--secondary);font-weight:700;font-size:.85em">Click to view ›</p></div>
+                <div class="card" id="cnt-dp" style="cursor:pointer;text-align:center" onclick="toggleStartupList('dp')">
+                    <div style="font-size:2.4em;font-weight:800;color:var(--primary);line-height:1">10</div>
+                    <h3 style="margin:6px 0 2px">DPIIT Pvt Ltd</h3>
+                    <p style="color:var(--secondary);font-weight:700;font-size:.85em">Click to view ›</p></div>
+                <div class="card" id="cnt-in" style="cursor:pointer;text-align:center" onclick="toggleStartupList('in')">
+                    <div style="font-size:2.4em;font-weight:800;color:var(--primary);line-height:1">4</div>
+                    <h3 style="margin:6px 0 2px">Internal Pvt Ltd</h3>
+                    <p style="color:var(--secondary);font-weight:700;font-size:.85em">Click to view ›</p></div>
+            </div>
+            <div id="list-ud" style="display:none;margin-top:8px"><h3 style="color:#0b2a6b;margin:10px 0 12px">Udyam Registered &amp; Mentorship Pipeline</h3><div class="cards-grid"><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">VUEGA</h3><p style="color:#666;font-size:.85em">Technology / IT</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">CODE KADAI SOLUTIONS</h3><p style="color:#666;font-size:.85em">Software Solutions</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Devoice</h3><p style="color:#666;font-size:.85em">Voice / Communication Tech</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">CredoSure</h3><p style="color:#666;font-size:.85em">FinTech / Credit-Insurance</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Agro Nanba</h3><p style="color:#666;font-size:.85em">AgriTech</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Soulful AI</h3><p style="color:#666;font-size:.85em">Artificial Intelligence</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">NETIZENS IT SOLUTION</h3><p style="color:#666;font-size:.85em">IT Solutions</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Solozard</h3><p style="color:#666;font-size:.85em">Technology / Others</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">AITALYTICS</h3><p style="color:#666;font-size:.85em">AI &amp; Data Analytics</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Trikey Solutions</h3><p style="color:#666;font-size:.85em">Technology / Others</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Viruzverse Solutions</h3><p style="color:#666;font-size:.85em">IT Services / Product Development</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Electra Gen</h3><p style="color:#666;font-size:.85em">Boiler Manufacturing &amp; Trading</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Zeyfira</h3><p style="color:#666;font-size:.85em">Technology / Others</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">ORIVOX *</h3><p style="color:#666;font-size:.85em">Voice / Audio Tech</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Edvatiq</h3><p style="color:#666;font-size:.85em">EdTech</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Nohands Ai</h3><p style="color:#666;font-size:.85em">AI / Automation</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">ROBOLOOM</h3><p style="color:#666;font-size:.85em">Robotics</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">AURA FORGE</h3><p style="color:#666;font-size:.85em">Manufacturing / Fabrication</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">TECHNO VANAM</h3><p style="color:#666;font-size:.85em">IT Services (Computer Programming &amp; Consultancy)</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">ACS</h3><p style="color:#666;font-size:.85em">Technology / Others</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Void Industries</h3><p style="color:#666;font-size:.85em">Industrial / Manufacturing</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">SKYVANCE</h3><p style="color:#666;font-size:.85em">Aerospace / Drone Tech</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Collaborative Autonomous Robots for Smart Warehouse Logistics</h3><p style="color:#666;font-size:.85em">Robotics / Warehouse Automation</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">INTELLIGUARD – Edge AI &amp; AR/VR Industrial Intelligence System</h3><p style="color:#666;font-size:.85em">AI / AR-VR / Industrial IoT</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">SafeStep – Intelligent Health Monitoring &amp; Women Safety</h3><p style="color:#666;font-size:.85em">HealthTech / Safety Tech</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Indian Sign Language Recognition &amp; Translation App</h3><p style="color:#666;font-size:.85em">AI / Assistive Tech</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">ThingsDock – IoT Control &amp; Monitoring Application</h3><p style="color:#666;font-size:.85em">IoT</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Omnisense Edge AI – Spice Adulteration Detection</h3><p style="color:#666;font-size:.85em">AI / Food Tech</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Autonomous Solar Powered Aquatic Cleaning Drone</h3><p style="color:#666;font-size:.85em">Robotics / CleanTech</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">CocoPack – Sustainable Packaging Solution from Coconut Husk</h3><p style="color:#666;font-size:.85em">Sustainability / Material Science</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">DairyGuard – AI Driven Milk Quality Detection System</h3><p style="color:#666;font-size:.85em">AI / AgriTech-FoodTech</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">NeuroBright – Neuroadaptive Learning System</h3><p style="color:#666;font-size:.85em">EdTech / AI</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Cargo Tampering Detection and Prevention System</h3><p style="color:#666;font-size:.85em">IoT / Logistics Security</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">AI Based Cyber Attack Detection System</h3><p style="color:#666;font-size:.85em">Cybersecurity / AI</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Vehicle to Vehicle Communication (V2V)</h3><p style="color:#666;font-size:.85em">Automotive Communication</p></div><div class="card"><span class="card-badge gold">Pipeline</span><h3 style="font-size:1em;margin:8px 0 4px">Software Applications</h3><p style="color:#666;font-size:.85em">Software Development</p></div><div class="card"><span class="card-badge gold">Pipeline</span><h3 style="font-size:1em;margin:8px 0 4px">Booking Software</h3><p style="color:#666;font-size:.85em">Software Development</p></div><div class="card"><span class="card-badge gold">Pipeline</span><h3 style="font-size:1em;margin:8px 0 4px">Smart ATM Anti-Theft System with Tampering Detection and Real-time Law Enforcement Alert</h3><p style="color:#666;font-size:.85em">IoT / Security</p></div><div class="card"><span class="card-badge gold">Pipeline</span><h3 style="font-size:1em;margin:8px 0 4px">Vision Driven Autonomous Shelf Verification Robot for Library Management</h3><p style="color:#666;font-size:.85em">Robotics / Computer Vision</p></div><div class="card"><span class="card-badge gold">Pipeline</span><h3 style="font-size:1em;margin:8px 0 4px">Smart Hospital Robot with Vital Sign Monitor and Voice Assistant</h3><p style="color:#666;font-size:.85em">HealthTech / Robotics</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">RetailGuard</h3><p style="color:#666;font-size:.85em">AI / Retail Analytics</p></div><div class="card"><span class="card-badge gold">Pipeline</span><h3 style="font-size:1em;margin:8px 0 4px">Hospital Based AI Navigation for Visually Impaired People</h3><p style="color:#666;font-size:.85em">AI / Assistive Tech</p></div><div class="card"><span class="card-badge gold">Pipeline</span><h3 style="font-size:1em;margin:8px 0 4px">Wafer Defect Detection System</h3><p style="color:#666;font-size:.85em">AI / Semiconductor QA</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">AI-Powered Real-Time Video Surveillance and Suspicious Activity Detection System for NSG</h3><p style="color:#666;font-size:.85em">AI / Surveillance Security</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">CROP+ (Carbon+ Nutrition Calculator for Farmers)</h3><p style="color:#666;font-size:.85em">AgriTech / Sustainability</p></div><div class="card"><span class="card-badge gold">Udyam</span><h3 style="font-size:1em;margin:8px 0 4px">Carbon+ Nutrition Calculator</h3><p style="color:#666;font-size:.85em">AgriTech / Sustainability</p></div></div></div>
+            <div id="list-dp" style="display:none;margin-top:8px"><h3 style="color:#0b2a6b;margin:10px 0 12px">DPIIT-Recognised Pvt Ltd</h3><div class="cards-grid"><div class="card"><span class="card-badge gold">DPIIT</span><h3 style="font-size:1em;margin:8px 0 4px">VIKRA OCEAN TECH PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">Ocean Technology · Mechanical (Marine Tech)</p></div><div class="card"><span class="card-badge gold">DPIIT</span><h3 style="font-size:1em;margin:8px 0 4px">IAMUSAP VENTURES PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">Social Impact · Others / Interdisciplinary</p></div><div class="card"><span class="card-badge gold">DPIIT</span><h3 style="font-size:1em;margin:8px 0 4px">HAPPYWALK ONLINE RETAILS PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">Healthcare &amp; Lifesciences · AI&amp;DS (HealthTech)</p></div><div class="card"><span class="card-badge gold">DPIIT</span><h3 style="font-size:1em;margin:8px 0 4px">MS VISION X APR LABS PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">IT Services · IT</p></div><div class="card"><span class="card-badge gold">DPIIT</span><h3 style="font-size:1em;margin:8px 0 4px">THYNKURE MEDICAL PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">Healthcare &amp; Lifesciences · ECE / EEE (Biomedical)</p></div><div class="card"><span class="card-badge gold">DPIIT</span><h3 style="font-size:1em;margin:8px 0 4px">POP FARME TECH PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">Internet of Things · ECE (IoT)</p></div><div class="card"><span class="card-badge gold">DPIIT</span><h3 style="font-size:1em;margin:8px 0 4px">QUANTANICS TECHSERV PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">Internet of Things · ECE (IoT)</p></div><div class="card"><span class="card-badge gold">DPIIT</span><h3 style="font-size:1em;margin:8px 0 4px">SVASTI VECTOR SOLUTIONS PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">Internet of Things · ECE (IoT)</p></div><div class="card"><span class="card-badge gold">DPIIT</span><h3 style="font-size:1em;margin:8px 0 4px">ZENVIQUE NATURALS PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">Healthcare &amp; Lifesciences · Others (Pharma)</p></div><div class="card"><span class="card-badge gold">DPIIT</span><h3 style="font-size:1em;margin:8px 0 4px">SHASHEE REINFORCEMENTS PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">Construction · Civil</p></div></div></div>
+            <div id="list-in" style="display:none;margin-top:8px"><h3 style="color:#0b2a6b;margin:10px 0 12px">Internal Pvt Ltd</h3><div class="cards-grid"><div class="card"><span class="card-badge gold">Pvt Ltd</span><h3 style="font-size:1em;margin:8px 0 4px">ISAII TECHNOLOGIES PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">AI (Others sector) · AI&amp;DS</p></div><div class="card"><span class="card-badge gold">Pvt Ltd</span><h3 style="font-size:1em;margin:8px 0 4px">ELECTRA GEN</h3><p style="color:#666;font-size:.85em">Manufacturing &amp; Trading of Boilers and Allied Products · EEE / Mechanical</p></div><div class="card"><span class="card-badge gold">Pvt Ltd</span><h3 style="font-size:1em;margin:8px 0 4px">TECHNO VANAM</h3><p style="color:#666;font-size:.85em">IT Services (Computer Programming, Consultancy &amp; Related Activities) · IT</p></div><div class="card"><span class="card-badge gold">Pvt Ltd</span><h3 style="font-size:1em;margin:8px 0 4px">VIRUZVERSE SOLUTIONS PRIVATE LIMITED</h3><p style="color:#666;font-size:.85em">IT Services / Product Development · IT</p></div></div></div>
+        </div>
+
+        <!-- 5. RESOURCES SECTION -->
+        <div id="resources" class="section">
+            <h2>📚 Learning Resources for Startups</h2>
+
+            <h3 style="margin-top: 0;">📖 Essential Documents You Need</h3>
+            <div class="hub-grid">
+                <div class="hub-card">
+                    <h4>📋 Business Documents</h4>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>✓ Business Plan (20-30 pages)</li>
+                        <li>✓ Executive Summary (1-2 pages)</li>
+                        <li>✓ <a href="https://www.canva.com/presentations/templates/pitch-deck/" target="_blank" style="color:var(--primary);font-weight:600">Pitch Deck (15-20 slides) — templates ↗</a></li>
+                        <li>✓ Market Research Report</li>
+                        <li>✓ Financial Projections (5-year)</li>
+                    </ul>
+                </div>
+
+                <div class="hub-card">
+                    <h4>⚖️ Legal & Compliance</h4>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>✓ Company Registration (Pvt Ltd)</li>
+                        <li>✓ PAN & GST Registration</li>
+                        <li>✓ DPIIT Recognition</li>
+                        <li>✓ IP Filing (Patents, Trademarks)</li>
+                        <li>✓ Terms of Service & Privacy Policy</li>
+                    </ul>
+                </div>
+
+                <div class="hub-card">
+                    <h4>🚀 Growth Strategy</h4>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>✓ Go-to-Market Strategy</li>
+                        <li>✓ Sales & Marketing Plan</li>
+                        <li>✓ Team Building Plan</li>
+                        <li>✓ Investor Pitch Materials</li>
+                        <li>✓ KPI & Metrics Dashboard</li>
+                    </ul>
+                </div>
+
+                <div class="hub-card">
+                    <h4>🎯 Free Templates & Guides</h4>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>✓ <a href="https://www.canva.com/presentations/templates/pitch-deck/" target="_blank" style="color:var(--primary);font-weight:600">Winning Pitch Deck templates ↗</a></li>
+                        <li>✓ <a href="https://slidesgo.com/theme/business-plan" target="_blank" style="color:var(--primary);font-weight:600">Business Plan templates ↗</a></li>
+                        <li>✓ <a href="https://www.ycombinator.com/library" target="_blank" style="color:var(--primary);font-weight:600">Y Combinator Startup Library ↗</a></li>
+                        <li>✓ <a href="https://www.youtube.com/results?search_query=startup+pitch+deck+tutorial" target="_blank" style="color:var(--primary);font-weight:600">Pitch Deck video guide ▶</a></li>
+                        <li>✓ <a href="https://www.youtube.com/results?search_query=business+model+canvas+explained" target="_blank" style="color:var(--primary);font-weight:600">Business Model Canvas guide ▶</a></li>
+                    </ul>
+                </div>
+                <div class="hub-card">
+                    <h4>🌐 Important Links</h4>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>✓ <a href="https://www.startupindia.gov.in" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">StartupIndia.gov.in</a></li>
+                        <li>✓ <a href="https://www.gem.gov.in" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">GeM - Government e-Marketplace</a></li>
+                        <li>✓ <a href="https://dpiit.gov.in" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">DPIIT - Recognition</a></li>
+                        <li>✓ SECE Incubation Center</li>
+                        <li>✓ AngelList & Crunchbase</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 30px;">
+                <strong>🎯 Founder's Success Checklist:</strong>
+                <ul style="margin-left: 25px; margin-top: 12px; color: var(--primary); line-height: 1.8;">
+                    <li>✓ Talk to 100+ customers before building</li>
+                    <li>✓ Build MVP before seeking funding</li>
+                    <li>✓ Apply to 5+ schemes simultaneously</li>
+                    <li>✓ Find mentors in first 6 months</li>
+                    <li>✓ Track metrics religiously</li>
+                    <li>✓ Join startup communities & networks</li>
+                    <li>✓ Attend pitching events & competitions</li>
+                    <li>✓ Keep learning continuously</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 6. READINESS SECTION -->
+        <div id="checklist" class="section">
+            <h2>✅ Startup Readiness Checklist</h2>
+            <p style="color: #666; margin-bottom: 30px;">Check off items as you prepare your startup for funding!</p>
+
+            <div class="progress-container">
+                <div style="display: flex; justify-content: space-between; color: var(--primary); font-weight: 600; margin-bottom: 10px;">
+                    <span>Completion Progress</span>
+                    <span><span id="progressPercent">0</span>%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="cards-grid" style="margin-bottom: 30px;">
+                <div class="card">
+                    <div style="font-size: 2.5em; margin-bottom: 10px; text-align: center;">✅</div>
+                    <p style="text-align: center; color: var(--primary); font-weight: 700; font-size: 1.1em;">
+                        <span id="checkCount">0</span> / <span id="totalCount">20</span> Completed
+                    </p>
+                </div>
+                <div class="card">
+                    <div style="font-size: 2.5em; margin-bottom: 10px; text-align: center;">📊</div>
+                    <p style="text-align: center; color: var(--primary); font-weight: 700; font-size: 1.1em;">
+                        <span id="readinessScore">0</span>% Ready
+                    </p>
+                </div>
+                <div class="card">
+                    <div style="font-size: 2.5em; margin-bottom: 10px; text-align: center;">🎯</div>
+                    <p style="text-align: center; color: var(--primary); font-weight: 700; font-size: 1.1em;">
+                        Score: <span id="readinessLabel">Not Started</span>
+                    </p>
+                </div>
+            </div>
+
+            <div id="checklistItems"></div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="college-credit">🎓 Sri Eshwar Business Incubation Forum</div>
+            <p>🚀 Startup Hub - Complete Government Schemes & Ecosystem Platform</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">📧 innovation@sece.ac.in | All Official Scheme Information from StartupIndia.gov.in</p>
+            <p style="font-size: 0.85em; opacity: 0.9; margin-top: 15px;">✓ This platform is regularly updated with latest government schemes and initiatives</p>
+        </footer>
+    </div>
+
+    <script>
+        // COMPLETE SCHEMES DATABASE - ALL 65+ SCHEMES
+        const allSchemes = [
+            // FLAGSHIP SCHEMES
+            {name: 'Startup India Seed Fund Scheme (SISFS)', amount: '₹20L Grant + ₹50L Debt', stage: 'prototype,seed', support: 'grant', sector: 'general', emoji: '💰', ministry: 'DPIIT'},
+            {name: 'Fund of Funds for Startups (FFS)', amount: '₹10,000 Crore Corpus', stage: 'seed,growth', support: 'equity', sector: 'general', emoji: '📈', ministry: 'DPIIT'},
+            {name: 'Startup India Fund of Funds 2.0', amount: '₹10,000 Crore', stage: 'growth', support: 'equity', sector: 'general', emoji: '📈', ministry: 'DPIIT'},
+            {name: 'Credit Guarantee Scheme for Startups (CGSS)', amount: 'Up to ₹20 Crore', stage: 'seed,growth', support: 'loan', sector: 'general', emoji: '🏦', ministry: 'DPIIT'},
+            {name: 'SIPP - IP Protection Scheme', amount: '80% Patent Fee Rebate', stage: 'idea,prototype,seed,growth', support: 'market', sector: 'general', emoji: '🛡️', ministry: 'DPIIT'},
+            {name: 'GeM Startup Runway', amount: 'Access to ₹1000+ Cr Market', stage: 'seed,growth', support: 'market', sector: 'general', emoji: '🛒', ministry: 'Dept of Commerce'},
+            
+            // NIDHI SCHEMES
+            {name: 'NIDHI - Seed Support Program (SSP)', amount: 'Up to ₹1 Crore', stage: 'seed', support: 'grant,equity', sector: 'general', emoji: '🌱', ministry: 'DST'},
+            {name: 'NIDHI - PRAYAS 2.0', amount: '₹20L - ₹40L', stage: 'idea,prototype', support: 'grant', sector: 'general', emoji: '⚡', ministry: 'DST'},
+            {name: 'NIDHI - Entrepreneur in Residence (EIR)', amount: '₹10K-30K/month', stage: 'idea', support: 'incubation', sector: 'general', emoji: '🎓', ministry: 'DST'},
+            {name: 'NIDHI - Technology Business Incubator (TBI)', amount: 'Multi-crore support', stage: 'prototype,seed', support: 'incubation', sector: 'general', emoji: '🏢', ministry: 'DST'},
+            {name: 'NIDHI - Inclusive TBI (i-TBI)', amount: 'Up to ₹5 Crore', stage: 'idea,prototype', support: 'incubation', sector: 'general', emoji: '🌍', ministry: 'DST'},
+            {name: 'NIDHI - Accelerator', amount: 'Up to ₹40 Lakh/Program', stage: 'seed,growth', support: 'incubation', sector: 'general', emoji: '🚀', ministry: 'DST'},
+            {name: 'NIDHI - Centres of Excellence (CoE)', amount: 'Up to ₹50 Crore/5 years', stage: 'seed,growth', support: 'incubation', sector: 'general', emoji: '🏆', ministry: 'DST'},
+            
+            // BIOTECH SCHEMES
+            {name: 'Biotechnology Ignition Grant (BIG)', amount: '₹50L for 18 months', stage: 'idea,prototype', support: 'grant', sector: 'biotech', emoji: '🧬', ministry: 'DBT'},
+            {name: 'BIT Innovation Fund - AcE', amount: 'Up to ₹7 Crore per startup', stage: 'seed,growth', support: 'equity', sector: 'biotech', emoji: '🔬', ministry: 'DBT'},
+            {name: 'BIRAC Incubator SEED Fund', amount: 'Up to ₹30 Lakh', stage: 'seed', support: 'equity', sector: 'biotech', emoji: '🧪', ministry: 'DBT'},
+            {name: 'LEAP Fund - Biotech', amount: '₹30L - ₹1Cr', stage: 'seed,growth', support: 'equity', sector: 'biotech', emoji: '🔬', ministry: 'DBT'},
+            {name: 'SPARSH - Social Health Innovation', amount: 'Up to ₹50 Lakh', stage: 'idea,prototype', support: 'grant', sector: 'biotech', emoji: '❤️', ministry: 'DBT'},
+            {name: 'BioNEST Programme', amount: 'Multi-crore support', stage: 'seed,growth', support: 'incubation', sector: 'biotech', emoji: '🏥', ministry: 'DBT'},
+            {name: 'BIPP - Biotech Industry Partnership', amount: 'Project based funding', stage: 'prototype,seed', support: 'grant', sector: 'biotech', emoji: '🤝', ministry: 'DBT'},
+            {name: 'E-YUVA - Biotech Fellowship', amount: '₹30K-50K/month + ₹3-5L grant', stage: 'idea', support: 'grant', sector: 'biotech', emoji: '👨‍🎓', ministry: 'DBT'},
+            {name: 'SITARE - Student Biotech Innovation', amount: 'Up to ₹15 Lakh', stage: 'idea', support: 'grant', sector: 'biotech', emoji: '🎓', ministry: 'DBT'},
+            {name: 'PACE - Academic Research to Enterprise', amount: 'Up to ₹50 Lakh', stage: 'prototype', support: 'grant', sector: 'biotech', emoji: '🎓', ministry: 'DBT'},
+            {name: 'SBIRI - Biotech Innovation Initiative', amount: 'Project based support', stage: 'prototype,seed', support: 'grant', sector: 'biotech', emoji: '🔬', ministry: 'DBT'},
+            
+            // AGRICULTURE SCHEMES
+            {name: 'AgriSURE - Agri Fund for Startups', amount: 'Up to ₹25 Crore', stage: 'seed,growth', support: 'equity', sector: 'agri', emoji: '🌾', ministry: 'Ministry of Agriculture'},
+            {name: 'RKVY - Agri-Entrepreneurship Program', amount: '₹5L - ₹25L', stage: 'idea,seed', support: 'grant', sector: 'agri', emoji: '🌾', ministry: 'Ministry of Agriculture'},
+            {name: 'BHARATI - Agritech Export Hub', amount: 'Acceleration + Market Access', stage: 'seed,growth', support: 'market', sector: 'agri', emoji: '🌍', ministry: 'APEDA'},
+            {name: 'Agriculture Infrastructure Financing', amount: 'Up to ₹2.5 Crore + Subsidy', stage: 'seed,growth', support: 'loan', sector: 'agri', emoji: '🚜', ministry: 'Ministry of Agriculture'},
+            {name: 'National Livestock Mission', amount: '100% R&D Support', stage: 'idea,prototype', support: 'grant', sector: 'agri', emoji: '🐄', ministry: 'Dept of Animal Husbandry'},
+            
+            // DEFENCE & AEROSPACE
+            {name: 'Innovations for Defence Excellence (iDEX)', amount: '₹1.5Cr - ₹10Cr', stage: 'prototype,seed', support: 'grant', sector: 'defence', emoji: '🛡️', ministry: 'Ministry of Defence'},
+            {name: 'ADITI - Advanced Defence Tech iDEX', amount: 'Up to ₹25 Crore', stage: 'prototype,seed', support: 'grant', sector: 'defence', emoji: '🛡️', ministry: 'Ministry of Defence'},
+            {name: 'Technology Development Fund (TDF)', amount: 'Up to ₹10 Crore (90% funding)', stage: 'prototype,seed', support: 'grant', sector: 'defence', emoji: '🔧', ministry: 'DRDO'},
+            
+            // SPACE TECH
+            {name: 'IN-SPACe Seed Fund Scheme', amount: '₹1 Crore', stage: 'prototype,seed', support: 'grant', sector: 'space', emoji: '🚀', ministry: 'Department of Space'},
+            {name: 'Antariksh VCF - Space VC Fund', amount: '₹1,005 Crore Corpus', stage: 'seed,growth', support: 'equity', sector: 'space', emoji: '🚀', ministry: 'IN-SPACe'},
+            {name: 'Space Technology Adoption Fund (TAF)', amount: 'Up to ₹25 Crore', stage: 'prototype,growth', support: 'grant', sector: 'space', emoji: '🌌', ministry: 'IN-SPACe'},
+            
+            // SEMICONDUCTOR & ELECTRONICS
+            {name: 'Chips to Startup (C2S)', amount: 'Project based support', stage: 'prototype', support: 'grant', sector: 'semiconductor', emoji: '⚡', ministry: 'MeitY'},
+            {name: 'Design Linked Incentive (DLI)', amount: 'Up to 50% reimbursement (₹15Cr cap)', stage: 'prototype,seed', support: 'grant', sector: 'semiconductor', emoji: '🎨', ministry: 'MeitY'},
+            {name: 'GENESIS - Gen-Next Tech Startups', amount: '₹10L - ₹1Cr', stage: 'idea,seed,growth', support: 'grant', sector: 'general', emoji: '💡', ministry: 'MeitY'},
+            {name: 'SAMRIDH - MeitY Accelerators', amount: 'Up to ₹40 Lakh matching', stage: 'seed,growth', support: 'equity', sector: 'general', emoji: '🚀', ministry: 'MeitY'},
+            {name: 'STPI - Next Gen Incubation Scheme', amount: 'Up to ₹25 Lakh seed fund', stage: 'idea,seed', support: 'grant', sector: 'general', emoji: '💻', ministry: 'STPI'},
+            
+            // TELECOM & DIGITAL
+            {name: 'DCIS - Digital Communication Innovation', amount: 'Up to ₹50L - ₹10Cr', stage: 'prototype,seed', support: 'grant', sector: 'general', emoji: '📡', ministry: 'Department of Telecom'},
+            {name: 'IFSCA Fintech Incentive Scheme', amount: 'Up to ₹75 Lakh', stage: 'prototype,seed,growth', support: 'grant', sector: 'general', emoji: '💳', ministry: 'IFSCA'},
+            
+            // QUANTUM & ADVANCED TECH
+            {name: 'National Quantum Mission (NQM)', amount: 'Up to ₹25 Crore', stage: 'prototype,seed', support: 'grant', sector: 'semiconductor', emoji: '⚛️', ministry: 'DST'},
+            {name: 'NM-ICPS Tech Innovation Hubs', amount: '₹3,660 Crore Mission', stage: 'prototype,seed,growth', support: 'grant', sector: 'general', emoji: '🤖', ministry: 'DST'},
+            {name: 'RDI Scheme - Research & Innovation', amount: '₹1 Lakh Crore Corpus', stage: 'seed,growth', support: 'loan,equity', sector: 'general', emoji: '🔬', ministry: 'DST'},
+            
+            // TEXTILES & SPECIALIZED
+            {name: 'GREAT - Technical Textiles', amount: 'Up to ₹50 Lakh', stage: 'prototype,seed', support: 'grant', sector: 'general', emoji: '🧵', ministry: 'Ministry of Textiles'},
+            {name: 'S&T-PRISM - Mining Innovation', amount: 'Up to ₹2 Crore', stage: 'prototype,seed', support: 'grant', sector: 'general', emoji: '⛏️', ministry: 'Ministry of Mines'},
+            {name: 'PRISM - Grassroots Innovation', amount: 'Up to ₹50 Lakh', stage: 'idea,prototype', support: 'grant', sector: 'general', emoji: '💡', ministry: 'DSIR'},
+            
+            // MSME & CREDIT
+            {name: 'CGTMSE - Credit Guarantee for MSE', amount: 'Up to ₹10 Crore', stage: 'seed,growth', support: 'loan', sector: 'general', emoji: '🏦', ministry: 'Ministry of MSME'},
+            {name: 'Self-Reliant India Fund (SRI)', amount: '₹50,000 Crore Corpus', stage: 'seed,growth', support: 'equity', sector: 'general', emoji: '📈', ministry: 'Ministry of MSME'},
+            {name: 'MSME Champions Scheme', amount: 'Component wise support', stage: 'seed,growth', support: 'grant', sector: 'general', emoji: '🏆', ministry: 'Ministry of MSME'},
+            {name: 'Pradhan Mantri Mudra Yojana (PMMY)', amount: '₹10L - ₹20L', stage: 'seed', support: 'loan', sector: 'general', emoji: '💳', ministry: 'Ministry of Finance'},
+            {name: 'Stand-Up India', amount: '₹10L - ₹1Cr', stage: 'seed', support: 'loan', sector: 'general', emoji: '👩‍💼', ministry: 'Ministry of Finance'},
+            {name: 'PM Formalisation of Micro Food (PMFME)', amount: '35% Subsidy + Loan', stage: 'seed,growth', support: 'grant,loan', sector: 'agri', emoji: '🍽️', ministry: 'Ministry of Food Processing'},
+            
+            // ATL & INNOVATION
+            {name: 'Atal Tinkering Labs (ATL)', amount: '₹20L per school', stage: 'idea', support: 'incubation', sector: 'general', emoji: '🔧', ministry: 'NITI Aayog'},
+            {name: 'Atal Incubation Centres (AIC)', amount: 'Up to ₹10 Crore', stage: 'prototype,seed', support: 'incubation', sector: 'general', emoji: '🏢', ministry: 'NITI Aayog'},
+            {name: 'Atal Community Innovation (ACIC)', amount: 'Up to ₹2.5 Crore', stage: 'idea,prototype', support: 'incubation', sector: 'general', emoji: '🌍', ministry: 'NITI Aayog'},
+            {name: 'Established Incubation Centres (EIC)', amount: 'Up to ₹10 Crore', stage: 'seed,growth', support: 'incubation', sector: 'general', emoji: '📈', ministry: 'NITI Aayog'},
+            
+            // SOCIAL & INCLUSIVE
+            {name: 'National SC-ST Hub Scheme', amount: 'Up to ₹25 Lakh subsidy', stage: 'seed,growth', support: 'grant,market', sector: 'general', emoji: '🤝', ministry: 'Ministry of MSME'},
+            {name: 'Venture Capital Fund for SC (VCF-SC)', amount: '₹10L - ₹15Cr loans', stage: 'seed,growth', support: 'loan', sector: 'general', emoji: '💰', ministry: 'Ministry of Social Justice'},
+            {name: 'STI Hubs for SC/ST Communities', amount: 'Project based grant', stage: 'prototype,seed', support: 'grant', sector: 'general', emoji: '🌟', ministry: 'DST'},
+            {name: 'Yuva Sahakar - Cooperative Support', amount: 'Long-term loans + 2% subsidy', stage: 'seed,growth', support: 'loan', sector: 'general', emoji: '🤝', ministry: 'Ministry of Cooperation'},
+            {name: 'SVEP - Village Entrepreneurship', amount: 'Community Enterprise Fund', stage: 'idea,seed', support: 'grant', sector: 'general', emoji: '🌾', ministry: 'Ministry of Rural Dev'},
+            
+            // OTHER TECH & RESEARCH
+            {name: 'TIDE 2.0 - Tech Incubation', amount: '₹4L - ₹40L', stage: 'idea,prototype,seed', support: 'grant', sector: 'general', emoji: '💻', ministry: 'MeitY'},
+            {name: 'MAHIR - Power Sector Innovation', amount: 'Project based funding', stage: 'prototype,seed', support: 'grant', sector: 'general', emoji: '⚡', ministry: 'Ministry of Power'},
+            {name: 'International Cooperation Scheme', amount: 'Reimbursement support', stage: 'seed,growth', support: 'market', sector: 'general', emoji: '🌍', ministry: 'Ministry of MSME'},
+            {name: 'ESDP - Entrepreneurship Training', amount: 'Training subsidy', stage: 'idea', support: 'incubation', sector: 'general', emoji: '🎓', ministry: 'Ministry of MSME'},
+            {name: 'Technology Dev Centers (DAE)', amount: 'Infrastructure + Mentoring', stage: 'prototype,seed', support: 'incubation', sector: 'general', emoji: '🔬', ministry: 'Dept of Atomic Energy'},
+            {name: 'BioAngels - Angel Network', amount: 'Private angel investment', stage: 'seed,growth', support: 'equity', sector: 'biotech', emoji: '👼', ministry: 'BIRAC'}
+        ];
+
+        // Checklist Database
+        const checklistData = [
+            { id: 1, text: '📝 Create Business Plan (10-20 pages)', category: 'Documentation', priority: 'high' },
+            { id: 2, text: '💼 Financial Projections (5-year forecast)', category: 'Finance', priority: 'high' },
+            { id: 3, text: '🎯 Build Pitch Deck (15-20 slides)', category: 'Pitch', priority: 'high' },
+            { id: 4, text: '👥 Form Co-founder Team', category: 'Team', priority: 'high' },
+            { id: 5, text: '📋 Register Company (Pvt Ltd/LLP)', category: 'Legal', priority: 'high' },
+            { id: 6, text: '🏛️ Get DPIIT Recognition', category: 'Registration', priority: 'high' },
+            { id: 7, text: '🔍 Market Research & Competitor Analysis', category: 'Research', priority: 'high' },
+            { id: 8, text: '👥 Interview 100+ Customers', category: 'Validation', priority: 'high' },
+            { id: 9, text: '💻 Build MVP / Working Prototype', category: 'Product', priority: 'high' },
+            { id: 10, text: '📊 Financial Statements & Accounting Setup', category: 'Finance', priority: 'medium' },
+            { id: 11, text: '🛡️ File Patents & IP Protection', category: 'IP', priority: 'high' },
+            { id: 12, text: '📱 Website & Social Media Presence', category: 'Marketing', priority: 'medium' },
+            { id: 13, text: '🎓 Find 2-3 Mentors / Advisors', category: 'Mentoring', priority: 'high' },
+            { id: 14, text: '💰 Apply to Government Schemes (5+ schemes)', category: 'Funding', priority: 'high' },
+            { id: 15, text: '🤝 Network with VCs, Angels, Investors', category: 'Networking', priority: 'high' },
+            { id: 16, text: '📧 Join Startup Communities & Incubators', category: 'Ecosystem', priority: 'medium' },
+            { id: 17, text: '🎤 Participate in Pitch Competitions', category: 'Pitch', priority: 'medium' },
+            { id: 18, text: '📈 Track KPIs & Create Dashboard', category: 'Metrics', priority: 'medium' },
+            { id: 19, text: '✅ Get Initial Customer Testimonials', category: 'Validation', priority: 'medium' },
+            { id: 20, text: '🔐 Set up Bank Account & GST', category: 'Legal', priority: 'high' }
+        ];
+
+        // Initialize Checklist
+        function initChecklist() {
+            const container = document.getElementById('checklistItems');
+            container.innerHTML = '';
+            
+            checklistData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'checklist-item';
+                div.id = `check-${item.id}`;
+                div.innerHTML = `
+                    <div>
+                        <p style="font-weight: 600; color: var(--primary); margin-bottom: 5px;">${item.text}</p>
+                        <p style="font-size: 0.85em; color: #999;">${item.category}</p>
+                    </div>
+                    <input type="checkbox" onchange="updateChecklist()" style="accent-color: var(--secondary); cursor: pointer;">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateChecklist() {
+            const checkboxes = document.querySelectorAll('#checklistItems input[type="checkbox"]');
+            const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const total = checkboxes.length;
+            const percent = Math.round((checked / total) * 100);
+            
+            // Update UI
+            document.getElementById('checkCount').textContent = checked;
+            document.getElementById('readinessScore').textContent = percent;
+            document.getElementById('progressPercent').textContent = percent;
+            document.getElementById('progressBar').style.width = percent + '%';
+            
+            // Update label
+            let label = 'Not Started';
+            if (percent >= 90) label = '🌟 Ready for Funding!';
+            else if (percent >= 70) label = '🚀 Almost Ready';
+            else if (percent >= 50) label = '⚡ Good Progress';
+            else if (percent >= 25) label = '📈 Getting There';
+            
+            document.getElementById('readinessLabel').textContent = label;
+            
+            // Update checklist items visual
+            checkboxes.forEach((cb, idx) => {
+                const item = cb.closest('.checklist-item');
+                if (cb.checked) {
+                    item.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                }
+            });
+        }
+
+        // Display Schemes
+        function toggleStartupList(id){
+            ['ud','dp','in'].forEach(function(k){
+                var el=document.getElementById('list-'+k); if(!el) return;
+                if(k===id){ el.style.display = (el.style.display==='block')?'none':'block'; }
+                else { el.style.display='none'; }
+                var c=document.getElementById('cnt-'+k); if(c) c.classList.toggle('open', el.style.display==='block');
+            });
+        }
+        function showSchemeDetail(sc){
+            let o=document.getElementById('schemeModal');
+            if(!o){o=document.createElement('div');o.id='schemeModal';o.className='scheme-modal';o.onclick=e=>{if(e.target===o)o.style.display='none';};document.body.appendChild(o);}
+            o.innerHTML=`<div class="scheme-modal-box">
+                <button class="scheme-modal-x" onclick="document.getElementById('schemeModal').style.display='none'">×</button>
+                <div style="font-size:2.6em">${sc.emoji}</div>
+                <h2 style="color:var(--primary);margin:6px 0 10px">${sc.name}</h2>
+                <div style="margin-bottom:14px"><span class="card-badge gold">${sc.stage.toUpperCase()}</span> <span class="card-badge">${sc.support.toUpperCase()}</span> <span class="card-badge">${sc.sector}</span></div>
+                <table class="scheme-detail-tbl">
+                    <tr><td>Ministry / Department</td><td>${sc.ministry}</td></tr>
+                    <tr><td>Funding</td><td>${sc.amount}</td></tr>
+                    <tr><td>Stage</td><td>${sc.stage}</td></tr>
+                    <tr><td>Support type</td><td>${sc.support}</td></tr>
+                    <tr><td>Sector</td><td>${sc.sector}</td></tr>
+                    <tr><td>Who can apply</td><td>DPIIT-recognised startups${(sc.sector && sc.sector!=='general')?(' in the '+sc.sector+' sector'):''}, typically at the ${sc.stage.split(',')[0]} stage. See official guidelines for exact criteria.</td></tr>
+                </table>
+                <p style="color:#666;font-size:.88em;margin-top:14px"><strong>How to apply:</strong> Register on Startup India and get DPIIT recognition, then apply for this scheme on its ministry / implementing-agency portal. Application windows and full eligibility are on the official page.</p>
+                <a class="scheme-apply" href="https://www.google.com/search?q=${encodeURIComponent(sc.name + ' government scheme official website apply')}" target="_blank" rel="noopener">Open official scheme page →</a>
+            </div>`;
+            o.style.display='flex';
+        }
+        function displaySchemes(schemesToShow = allSchemes) {
+            const container = document.getElementById('schemesList');
+            container.innerHTML = '';
+            
+            if (schemesToShow.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; font-size: 1.1em; grid-column: 1/-1;">No schemes found. Try different filters!</p>';
+                return;
+            }
+            
+            schemesToShow.forEach(scheme => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div style="font-size: 1.6em; margin-bottom: 4px;">${scheme.emoji}</div>
+                    <span class="card-badge gold">${scheme.stage.split(',')[0].toUpperCase()}</span>
+                    <h3 style="font-size:1.02em;margin:8px 0 4px;">${scheme.name}</h3>
+                    <p style="color:#666;font-size:.85em;margin-bottom:8px;">${scheme.ministry}</p>
+                    <div class="funding-amount" style="font-size:.95em;">${scheme.amount}</div>
+                    <div style="margin-top:8px;color:var(--secondary);font-weight:700;font-size:.8em;">View full details →</div>
+                `;
+                card.style.cursor='pointer';
+                card.onclick=()=>showSchemeDetail(scheme);
+                container.appendChild(card);
+            });
+        }
+
+        // Filter Schemes
+        function filterSchemes() {
+            const stage = document.getElementById('stageFilter').value;
+            const support = document.getElementById('supportFilter').value;
+            const sector = document.getElementById('sectorFilter').value;
+            const search = document.getElementById('schemeSearch')?.value?.toLowerCase() || '';
+            
+            let filtered = allSchemes;
+            
+            if (stage) filtered = filtered.filter(s => s.stage.includes(stage));
+            if (support) filtered = filtered.filter(s => s.support.includes(support));
+            if (sector) filtered = filtered.filter(s => s.sector === sector);
+            if (search) filtered = filtered.filter(s => s.name.toLowerCase().includes(search));
+            
+            displaySchemes(filtered);
+        }
+
+        // Analyze Idea
+        async function analyzeIdea() {
+            const projectDesc = document.getElementById('projectDesc').value.trim();
+            
+            if (!projectDesc) {
+                alert('Please describe your project or idea!');
+                return;
+            }
+            
+            document.getElementById('analyzeBtn').disabled = true;
+            document.getElementById('analyzeBtn').textContent = '⏳ Analyzing Your Idea...';
+            
+            setTimeout(() => {
+                performAnalysis(projectDesc);
+            }, 1500);
+        }
+
+        function performAnalysis(description) {
+            const lowerDesc = description.toLowerCase();
+            
+            let matchedSchemes = [];
+            let stage = 'prototype';
+            let fundingAmount = '₹20L-50L';
+            
+            // Analyze stage
+            if (lowerDesc.includes('idea') || lowerDesc.includes('concept') || lowerDesc.includes('planning') || lowerDesc.includes('just idea')) {
+                stage = 'idea';
+                fundingAmount = '₹5L-20L';
+            } else if (lowerDesc.includes('prototype') || lowerDesc.includes('mvp') || lowerDesc.includes('building') || lowerDesc.includes('developing')) {
+                stage = 'prototype';
+                fundingAmount = '₹20L-50L';
+            } else if (lowerDesc.includes('revenue') || lowerDesc.includes('product-market') || lowerDesc.includes('scaling') || lowerDesc.includes('customers')) {
+                stage = 'seed';
+                fundingAmount = '₹50L-1Cr';
+            } else if (lowerDesc.includes('growth') || lowerDesc.includes('market') || lowerDesc.includes('expansion') || lowerDesc.includes('profitab')) {
+                stage = 'growth';
+                fundingAmount = '₹1Cr+';
+            }
+            
+            // Match schemes based on keywords
+            if (lowerDesc.includes('biotech') || lowerDesc.includes('medtech') || lowerDesc.includes('healthcare') || lowerDesc.includes('pharma') || lowerDesc.includes('diagnosis') || lowerDesc.includes('medicine')) {
+                matchedSchemes = allSchemes.filter(s => s.sector === 'biotech').slice(0, 6);
+            } else if (lowerDesc.includes('agriculture') || lowerDesc.includes('agri') || lowerDesc.includes('farming') || lowerDesc.includes('farmer') || lowerDesc.includes('crop')) {
+                matchedSchemes = allSchemes.filter(s => s.sector === 'agri').slice(0, 6);
+            } else if (lowerDesc.includes('space') || lowerDesc.includes('satellite') || lowerDesc.includes('orbital')) {
+                matchedSchemes = allSchemes.filter(s => s.sector === 'space').slice(0, 6);
+            } else if (lowerDesc.includes('defence') || lowerDesc.includes('military') || lowerDesc.includes('army')) {
+                matchedSchemes = allSchemes.filter(s => s.sector === 'defence').slice(0, 6);
+            } else if (lowerDesc.includes('semiconductor') || lowerDesc.includes('chip') || lowerDesc.includes('vlsi') || lowerDesc.includes('hardware')) {
+                matchedSchemes = allSchemes.filter(s => s.sector === 'semiconductor').slice(0, 6);
+            } else if (lowerDesc.includes('fintech') || lowerDesc.includes('payment') || lowerDesc.includes('bank')) {
+                matchedSchemes = allSchemes.filter(s => s.support.includes('loan') || s.name.includes('Fintech')).slice(0, 6);
+            } else {
+                matchedSchemes = allSchemes.filter(s => s.stage.includes(stage)).slice(0, 6);
+            }
+            
+            // Display Results
+            document.getElementById('analysisResults').style.display = 'block';
+            document.getElementById('projectSummary').textContent = description;
+            document.getElementById('fundingStage').innerHTML = `
+                <strong>📍 Estimated Stage:</strong> ${stage.toUpperCase()}<br>
+                <strong>💰 Funding Required:</strong> ${fundingAmount}<br>
+                <strong>⏱️ Timeline to Revenue:</strong> 12-18 months<br>
+                <strong>🎯 Recommended Path:</strong> Join SECE Incubator → Apply Government Schemes → Pitch to VCs
+            `;
+            
+            const resultsDiv = document.getElementById('recommendedSchemes');
+            resultsDiv.innerHTML = '';
+            
+            if (matchedSchemes.length === 0) {
+                matchedSchemes = allSchemes.filter(s => s.stage.includes(stage)).slice(0, 6);
+            }
+            
+            matchedSchemes.forEach((scheme, idx) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div style="font-size: 2.2em; margin-bottom: 10px;">${scheme.emoji}</div>
+                    <span class="card-badge match">#${idx + 1} PERFECT MATCH</span>
+                    <h3>${scheme.name}</h3>
+                    <p style="color: #666; margin-bottom: 10px; font-size: 0.95em;">${scheme.ministry}</p>
+                    <div class="funding-amount">${scheme.amount}</div>
+                    <p style="font-size: 0.85em; color: #999; margin-top: 12px;">📌 ${scheme.stage.replace(/,/g, ', ').toUpperCase()}</p>
+                    <div style="margin-top:8px;color:var(--secondary);font-weight:700;font-size:.8em;">View details & how to apply →</div>
+                `;
+                card.style.cursor='pointer';
+                card.onclick=()=>showSchemeDetail(scheme);
+                resultsDiv.appendChild(card);
+            });
+            
+            document.getElementById('analyzeBtn').disabled = false;
+            document.getElementById('analyzeBtn').textContent = '🔍 ANALYZE & GET SCHEME RECOMMENDATIONS';
+            
+            window.scrollTo(0, document.getElementById('analysisResults').offsetTop - 100);
+        }
+
+        // Section Switching
+        function switchSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(s => s.classList.remove('active'));
+            
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+            
+            window.scrollTo(0, 0);
+            
+            if (sectionId === 'schemes') displaySchemes();
+            if (sectionId === 'checklist') initChecklist();
+        }
+
+        // Handle File Upload
+        async function handleFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const name = file.name.toLowerCase();
+            const desc = document.getElementById('projectDesc');
+            if (name.endsWith('.txt')) {
+                const reader = new FileReader();
+                reader.onload = function(e){ desc.value = (e.target.result || '').substring(0, 4000); };
+                reader.readAsText(file);
+                return;
+            }
+            if (name.endsWith('.pdf') && window.pdfjsLib) {
+                try {
+                    desc.value = 'Reading your PDF, please wait...';
+                    const buf = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+                    let text = '';
+                    const pages = Math.min(pdf.numPages, 10);
+                    for (let p = 1; p <= pages; p++) {
+                        const page = await pdf.getPage(p);
+                        const tc = await page.getTextContent();
+                        text += tc.items.map(function(it){ return it.str; }).join(' ') + ' ';
+                    }
+                    text = text.replace(/\s+/g, ' ').trim();
+                    if (text) { desc.value = text.substring(0, 4000); }
+                    else { desc.value = ''; alert('This PDF looks like scanned images, so its text could not be read. Please type a short description of your idea below.'); }
+                } catch (err) {
+                    desc.value = '';
+                    alert('Could not read this PDF. Please type a short description of your idea below.');
+                }
+                return;
+            }
+            if ((name.endsWith('.pptx') || name.endsWith('.docx')) && window.JSZip) {
+                try {
+                    desc.value = 'Reading your file, please wait...';
+                    const buf = await file.arrayBuffer();
+                    const zip = await JSZip.loadAsync(buf);
+                    let text = '';
+                    if (name.endsWith('.pptx')) {
+                        const slides = Object.keys(zip.files).filter(function(n){ return n.indexOf('ppt/slides/slide') === 0 && n.endsWith('.xml'); }).sort();
+                        for (const sf of slides) {
+                            const xml = await zip.files[sf].async('string');
+                            const parts = xml.split('<a:t>');
+                            for (let k = 1; k < parts.length; k++) {
+                                text += parts[k].split('</a:t>')[0].replace(/<[^>]+>/g, '') + ' ';
+                            }
+                        }
+                    } else {
+                        const doc = zip.files['word/document.xml'];
+                        const xml = doc ? await doc.async('string') : '';
+                        const parts = xml.split('<w:t');
+                        for (let k = 1; k < parts.length; k++) {
+                            const seg = parts[k];
+                            const gt = seg.indexOf('>'), end = seg.indexOf('</w:t>');
+                            if (gt >= 0 && end > gt) text += seg.substring(gt + 1, end).replace(/<[^>]+>/g, '') + ' ';
+                        }
+                    }
+                    text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'").replace(/\s+/g, ' ').trim();
+                    if (text) { desc.value = text.substring(0, 4000); }
+                    else { desc.value = ''; alert('Could not read text from this file. Please type a short description below.'); }
+                } catch (err) {
+                    desc.value = '';
+                    alert('Could not read this file. Please type a short description of your idea below.');
+                }
+                return;
+            }
+            desc.value = '';
+            alert('"' + file.name + '" uploaded, but this file type cannot be read automatically. Please type a short description of your idea below.');
+        }
+
+        // Drag and Drop
+        const uploadBox = document.getElementById('uploadBox');
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        });
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('dragover');
+        });
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                document.getElementById('fileInput').files = e.dataTransfer.files;
+                handleFile({ target: { files: e.dataTransfer.files } });
+            }
+        });
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            displaySchemes();
+            initChecklist();
+        });
+    <\/script>
+</body>
+</html>
 </script>
